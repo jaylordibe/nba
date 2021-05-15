@@ -12,15 +12,21 @@ function TeamInfo(props: TeamInfoProps) {
                     props.team.id
                         ?
                         <Card.Body>
-                            <Card.Title>{ props.team.name }</Card.Title>
+                            <Card.Title>
+                                <strong>{ props.team.name }</strong>
+                            </Card.Title>
                             <Card.Text>
+                                <strong>Conference:</strong>
+                                <br/>
                                 { props.team.conference }
                             </Card.Text>
                             <Card.Text>
+                                <strong>Division:</strong>
+                                <br/>
                                 { props.team.division }
                             </Card.Text>
-                            <Button variant="info">Edit</Button>
-                            <Button variant="danger" className="ml-2">Delete</Button>
+                            <Button variant="info" onClick={() => props.edit(props.team)}>Edit</Button>
+                            <Button variant="danger" className="ml-2" onClick={() => props.delete(props.team.id)}>Delete</Button>
                         </Card.Body>
                         :
                         <Card.Body>

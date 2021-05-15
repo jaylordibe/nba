@@ -8,25 +8,67 @@ import TeamInfo from '../../components/team/info/TeamInfo';
 import {Team} from '../../models/Team';
 import {useAppDispatch, useAppSelector} from '../../store/Hooks';
 import action from '../../store/actions/Action';
+import TeamEditForm from '../../components/team/edit-form/TeamEditForm';
+import {GenericObject} from '../../models/GenericObject';
+import {Response} from '../../models/Response';
+import NotificationUtil from '../../utils/NotificationUtil';
 
 function HomeContainer() {
 
     const dispatch = useAppDispatch();
     const selectedTeam = useAppSelector(state => state.team.selectedTeam);
     const [teams, setTeams] = useState(new Teams());
+    const [isEditingTeam, setIsEditingTeam] = useState(false);
 
     useEffect(() => {
         getTeams();
     }, []);
 
-    function getTeams() {
-        TeamService.get().then((teams: Teams) => {
+    function getTeams(page = 1) {
+        const params = {
+            page
+        };
+
+        TeamService.get(params).then((teams: Teams) => {
             setTeams(teams);
         });
     }
 
     function selectTeam(team: Team) {
         dispatch(action.team.selectTeam(team));
+    }
+
+    function editTeam(team: Team) {
+        setIsEditingTeam(true);
+    }
+
+    function submitEditedTeamInfo(payload: GenericObject) {
+        TeamService.update(payload.id, payload)
+            .then((team: Team) => {
+                NotificationUtil.success('Team info successfully updated.');
+                selectTeam(team);
+                cancelEditingTeam();
+                getTeams(teams.meta.current_page);
+            })
+            .catch((error) => {
+                NotificationUtil.error(error.response.data.error);
+            });
+    }
+
+    function cancelEditingTeam() {
+        setIsEditingTeam(false);
+    }
+
+    function deleteTeam(id: number) {
+        TeamService.delete(id)
+            .then((response: Response) => {
+                NotificationUtil.success(response.success);
+                selectTeam(new Team());
+                getTeams(teams.meta.current_page);
+            })
+            .catch((error) => {
+                NotificationUtil.error(error.response.data.error);
+            });
     }
 
     return (
@@ -36,7 +78,13 @@ function HomeContainer() {
                     <TeamList teams={teams} select={selectTeam}/>
                 </Col>
                 <Col sm={4}>
-                    <TeamInfo team={selectedTeam}/>
+                    {
+                        isEditingTeam
+                            ?
+                            <TeamEditForm team={selectedTeam} submit={submitEditedTeamInfo} cancel={cancelEditingTeam}/>
+                            :
+                            <TeamInfo team={selectedTeam} edit={editTeam} delete={deleteTeam}/>
+                    }
                 </Col>
             </Row>
         </React.Fragment>

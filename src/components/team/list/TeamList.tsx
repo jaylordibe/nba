@@ -1,6 +1,6 @@
 import React from 'react';
 import './TeamList.css';
-import {Button, Table} from 'react-bootstrap';
+import {Table} from 'react-bootstrap';
 import {TeamListProps} from './TeamListProps';
 
 function TeamList(props: TeamListProps) {
@@ -21,7 +21,7 @@ function TeamList(props: TeamListProps) {
                             return (
                                 <tr key={ team.id }>
                                     <td>
-                                        <Button variant="link" onClick={e => props.select(team)}>{ team.name }</Button>
+                                        <a onClick={() => props.select(team)}>{ team.name }</a>
                                     </td>
                                     <td>{ team.conference }</td>
                                     <td>{ team.division }</td>
