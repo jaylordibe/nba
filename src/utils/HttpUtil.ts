@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, {AxiosResponse} from 'axios';
 import {GenericObject} from '../models/GenericObject';
 
 export default class HttpUtil {
@@ -6,17 +6,15 @@ export default class HttpUtil {
     /**
      * Compose full API endpoint.
      * @param endpoint
-     * @returns {string}
      */
-    static composeApiEndpoint(endpoint: string) {
+    static composeApiEndpoint(endpoint: string): string {
         return process.env.REACT_APP_API_URL?.concat(endpoint) || '';
     }
 
     /**
      * Get additional request headers.
-     * @returns {{Authorization: string, "Content-Type": string}}
      */
-    static getRequestHeaders() {
+    static getRequestHeaders(): GenericObject {
         const token = localStorage.getItem('token');
 
         return {
@@ -29,9 +27,8 @@ export default class HttpUtil {
      * Compose endpoint with params if defined.
      * @param endpoint
      * @param params
-     * @returns {*}
      */
-    static composeEndpointWithParams(endpoint: string, params: GenericObject) {
+    static composeEndpointWithParams(endpoint: string, params: GenericObject): string {
         const paramKeys = Object.keys(params);
 
         if (paramKeys.length > 0) {
@@ -49,13 +46,12 @@ export default class HttpUtil {
      * Perform GET http request.
      * @param endpoint
      * @param params
-     * @returns {Promise}
      */
-    static async get(endpoint: string, params = {}) {
+    static async get<T>(endpoint: string, params = {}): Promise<T> {
         const config = {headers: this.getRequestHeaders()};
         endpoint = this.composeEndpointWithParams(endpoint, params);
         const url = this.composeApiEndpoint(endpoint);
-        const response = await axios.get(url, config);
+        const response: AxiosResponse<T> = await axios.get<T>(url, config);
 
         return response.data;
     }
@@ -64,12 +60,11 @@ export default class HttpUtil {
      * Perform POST http request.
      * @param endpoint
      * @param payload
-     * @returns {Promise}
      */
-    static async post(endpoint: string, payload = {}) {
+    static async post<T>(endpoint: string, payload = {}): Promise<T> {
         const config = {headers: this.getRequestHeaders()};
         const url = this.composeApiEndpoint(endpoint);
-        const response = await axios.post(url, payload, config);
+        const response: AxiosResponse<T> = await axios.post(url, payload, config);
 
         return response.data;
     }
@@ -78,12 +73,11 @@ export default class HttpUtil {
      * Perform PUT http request.
      * @param endpoint
      * @param payload
-     * @returns {Promise}
      */
-    static async put(endpoint: string, payload = {}) {
+    static async put<T>(endpoint: string, payload = {}): Promise<T> {
         const config = {headers: this.getRequestHeaders()};
         const url = this.composeApiEndpoint(endpoint);
-        const response = await axios.put(url, payload, config);
+        const response: AxiosResponse<T> = await axios.put(url, payload, config);
 
         return response.data;
     }
@@ -91,12 +85,11 @@ export default class HttpUtil {
     /**
      * Perform DELETE http request.
      * @param endpoint
-     * @returns {Promise}
      */
-    static async delete(endpoint: string) {
+    static async delete<T>(endpoint: string): Promise<T> {
         const config = {headers: this.getRequestHeaders()};
         const url = this.composeApiEndpoint(endpoint);
-        const response = await axios.delete(url, config);
+        const response: AxiosResponse<T> = await axios.delete(url, config);
 
         return response.data;
     }

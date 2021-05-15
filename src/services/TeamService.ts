@@ -1,5 +1,8 @@
 import {GenericObject} from '../models/GenericObject';
 import HttpUtil from '../utils/HttpUtil';
+import {Teams} from '../models/Teams';
+import {Response} from '../models/Response';
+import {Team} from '../models/Team';
 
 export default class TeamService {
 
@@ -7,7 +10,7 @@ export default class TeamService {
      * Create team.
      * @param payload
      */
-    static create(payload: GenericObject): GenericObject {
+    static create(payload: GenericObject): Promise<Team> {
         return HttpUtil.post('/teams', payload);
     }
 
@@ -18,7 +21,7 @@ export default class TeamService {
      *     string division (optional)
      *     string search (optional)
      */
-    static get(params: GenericObject): GenericObject {
+    static get(params = {}): Promise<Teams> {
         return HttpUtil.get('/teams', params);
     }
 
@@ -26,7 +29,7 @@ export default class TeamService {
      * Get team by id.
      * @param id
      */
-    static getById(id: number): GenericObject {
+    static getById(id: number): Promise<Team> {
         return HttpUtil.get(`/teams/${id}`);
     }
 
@@ -35,7 +38,7 @@ export default class TeamService {
      * @param id
      * @param payload
      */
-    static update(id: number, payload: GenericObject): GenericObject {
+    static update(id: number, payload: GenericObject): Promise<Team> {
         return HttpUtil.put(`/teams/${id}`, payload);
     }
 
@@ -43,7 +46,7 @@ export default class TeamService {
      * Delete team.
      * @param id
      */
-    static delete(id: number): GenericObject {
+    static delete(id: number): Promise<Response> {
         return HttpUtil.delete(`/teams/${id}`);
     }
 }
