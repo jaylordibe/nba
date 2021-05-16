@@ -1,8 +1,6 @@
-import {Team} from '../../../models/Team';
 import {GenericObject} from '../../../models/GenericObject';
 
-export interface TeamEditFormProps {
-    team: Team;
+export interface TeamCreateProps {
     submit(payload: GenericObject): void;
     cancel(): void;
 }

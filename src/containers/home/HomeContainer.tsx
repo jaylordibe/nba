@@ -8,7 +8,8 @@ import TeamInfo from '../../components/team/info/TeamInfo';
 import {Team} from '../../models/Team';
 import {useAppDispatch, useAppSelector} from '../../store/Hooks';
 import action from '../../store/actions/Action';
-import TeamEditForm from '../../components/team/edit-form/TeamEditForm';
+import TeamEdit from '../../components/team/edit/TeamEdit';
+import TeamCreate from '../../components/team/create/TeamCreate';
 import {GenericObject} from '../../models/GenericObject';
 import {Response} from '../../models/Response';
 import NotificationUtil from '../../utils/NotificationUtil';
@@ -18,15 +19,38 @@ function HomeContainer() {
     const dispatch = useAppDispatch();
     const selectedTeam = useAppSelector(state => state.team.selectedTeam);
     const [teams, setTeams] = useState(new Teams());
-    const [isEditingTeam, setIsEditingTeam] = useState(false);
+    const [conference, setConference] = useState('');
+    const [division, setDivision] = useState('');
+    const [search, setSearch] = useState('');
+    const [rightSectionView, setRightSectionView] = useState('view-team');
 
     useEffect(() => {
         getTeams();
-    }, []);
+    }, [conference, division, search]);
 
-    function getTeams(page = 1) {
+    function renderRightSectionViewComponent(rightSectionView: string) {
+        let component = null;
+
+        switch (rightSectionView) {
+            case 'create-team':
+                component = <TeamCreate submit={submitAddedTeamInfo} cancel={cancelCreatingTeam}/>;
+                break;
+            case 'edit-team':
+                component = <TeamEdit team={selectedTeam} submit={submitEditedTeamInfo} cancel={cancelEditingTeam}/>;
+                break;
+            default:
+                component = <TeamInfo team={selectedTeam} edit={editTeam} delete={deleteTeam}/>;
+        }
+
+        return component;
+    }
+
+    function getTeams(page = 1): void {
         const params = {
-            page
+            page,
+            conference,
+            division,
+            search
         };
 
         TeamService.get(params).then((teams: Teams) => {
@@ -34,15 +58,50 @@ function HomeContainer() {
         });
     }
 
-    function selectTeam(team: Team) {
+    function searchTeams(field: string, value: string): void {
+        if (field === 'conference') {
+            setConference(value);
+        } else if (field === 'division') {
+            setDivision(value);
+        } else if (field === 'search') {
+            setSearch(value);
+        }
+    }
+
+    function selectTeam(team: Team): void {
         dispatch(action.team.selectTeam(team));
     }
 
-    function editTeam(team: Team) {
-        setIsEditingTeam(true);
+    function createTeam(): void {
+        setRightSectionView('create-team');
     }
 
-    function submitEditedTeamInfo(payload: GenericObject) {
+    function cancelCreatingTeam(): void {
+        setRightSectionView('view-team');
+    }
+
+    function submitAddedTeamInfo(payload: GenericObject): void {
+        TeamService.create(payload)
+            .then((team: Team) => {
+                NotificationUtil.success('Team successfully created.');
+                selectTeam(team);
+                cancelCreatingTeam();
+                getTeams(teams.meta.current_page);
+            })
+            .catch((error) => {
+                NotificationUtil.error(error.response.data.error);
+            });
+    }
+
+    function editTeam(team: Team): void {
+        setRightSectionView('edit-team');
+    }
+
+    function cancelEditingTeam(): void {
+        setRightSectionView('view-team');
+    }
+
+    function submitEditedTeamInfo(payload: GenericObject): void {
         TeamService.update(payload.id, payload)
             .then((team: Team) => {
                 NotificationUtil.success('Team info successfully updated.');
@@ -55,11 +114,7 @@ function HomeContainer() {
             });
     }
 
-    function cancelEditingTeam() {
-        setIsEditingTeam(false);
-    }
-
-    function deleteTeam(id: number) {
+    function deleteTeam(id: number): void {
         TeamService.delete(id)
             .then((response: Response) => {
                 NotificationUtil.success(response.success);
@@ -73,18 +128,12 @@ function HomeContainer() {
 
     return (
         <React.Fragment>
-            <Row className="mt-3">
+            <Row className="mt-5">
                 <Col sm={8}>
-                    <TeamList teams={teams} select={selectTeam}/>
+                    <TeamList teams={teams} create={createTeam} search={searchTeams} select={selectTeam}/>
                 </Col>
                 <Col sm={4}>
-                    {
-                        isEditingTeam
-                            ?
-                            <TeamEditForm team={selectedTeam} submit={submitEditedTeamInfo} cancel={cancelEditingTeam}/>
-                            :
-                            <TeamInfo team={selectedTeam} edit={editTeam} delete={deleteTeam}/>
-                    }
+                    {renderRightSectionViewComponent(rightSectionView)}
                 </Col>
             </Row>
         </React.Fragment>

@@ -1,13 +1,24 @@
 import React, {FormEvent, useState} from 'react';
-import './TeamEditForm.css';
-import {TeamEditFormProps} from './TeamEditFormProps';
+import './TeamEdit.css';
+import {TeamEditProps} from './TeamEditProps';
 import {Button, Col, Form} from 'react-bootstrap';
+import {Conference} from '../../../constants/Conference';
+import {Division} from '../../../constants/Division';
+import TeamUtil from '../../../utils/TeamUtil';
 
-function TeamEditForm(props: TeamEditFormProps) {
+function TeamEdit(props: TeamEditProps) {
 
+    const [conferences, setConferences] = useState(Object.values(Conference));
+    const [divisions, setDivisions] = useState(Object.values(Division));
     const [name, setName] = useState(props.team.name);
     const [conference, setConference] = useState(props.team.conference);
     const [division, setDivision] = useState(props.team.division);
+
+    function selectConference(conference: string): void {
+        setConference(conference);
+        const filteredDivisions = TeamUtil.findDivisionsByConference(conference);
+        setDivisions(filteredDivisions);
+    }
 
     function submit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -34,12 +45,22 @@ function TeamEditForm(props: TeamEditFormProps) {
 
                 <Form.Group controlId="conference">
                     <Form.Label>Conference</Form.Label>
-                    <Form.Control type="text" value={conference} onChange={(e) => setConference(e.target.value)}/>
+                    <Form.Control as="select" value={conference} onChange={(e) => selectConference(e.target.value)}>
+                        <option value="">Conference</option>
+                        {
+                            conferences.map(conference => <option key={conference} value={conference}>{ conference }</option>)
+                        }
+                    </Form.Control>
                 </Form.Group>
 
                 <Form.Group controlId="division">
                     <Form.Label>Division</Form.Label>
-                    <Form.Control type="text" value={division} onChange={(e) => setDivision(e.target.value)}/>
+                    <Form.Control as="select" value={division} onChange={(e) => setDivision(e.target.value)}>
+                        <option value="">Division</option>
+                        {
+                            divisions.map(division => <option key={division} value={division}>{ division }</option>)
+                        }
+                    </Form.Control>
                 </Form.Group>
 
                 <Form.Row className="mt-5">
@@ -55,4 +76,4 @@ function TeamEditForm(props: TeamEditFormProps) {
     );
 }
 
-export default TeamEditForm;
+export default TeamEdit;
