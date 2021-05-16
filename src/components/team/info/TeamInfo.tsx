@@ -1,7 +1,7 @@
 import React from 'react';
 import './TeamInfo.css';
 import {TeamInfoProps} from './TeamInfoProps';
-import {Button, Card} from 'react-bootstrap';
+import {Button, Card, Spinner} from 'react-bootstrap';
 
 function TeamInfo(props: TeamInfoProps) {
 
@@ -26,7 +26,15 @@ function TeamInfo(props: TeamInfoProps) {
                                 { props.team.division }
                             </Card.Text>
                             <Button variant="info" onClick={() => props.edit(props.team)}>Edit</Button>
-                            <Button variant="danger" className="ml-2" onClick={() => props.delete(props.team.id)}>Delete</Button>
+                            <Button variant="danger" className="ml-2" onClick={() => props.delete(props.team.id)}>
+                                {
+                                    props.isLoading
+                                        ?
+                                        <Spinner animation="grow" size="sm"/>
+                                        :
+                                        'Delete'
+                                }
+                            </Button>
                         </Card.Body>
                         :
                         <Card.Body>

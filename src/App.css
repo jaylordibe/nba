@@ -46,9 +46,13 @@
     border-color: #ced4da;
 }
 
-.btn.focus, .btn:focus {
+.btn.focus, .btn:focus, .page-link:focus {
     outline: none;
     box-shadow: none;
+}
+
+.page-link {
+    color: #212529;
 }
 
 td > a {

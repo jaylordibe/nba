@@ -5,4 +5,5 @@ export interface TeamEditProps {
     team: Team;
     submit(payload: GenericObject): void;
     cancel(): void;
+    isLoading: boolean;
 }

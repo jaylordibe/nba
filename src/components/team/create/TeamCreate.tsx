@@ -1,7 +1,7 @@
 import React, {FormEvent, useState} from 'react';
 import './TeamCreate.css';
 import {TeamCreateProps} from './TeamCreateProps';
-import {Button, Col, Form} from 'react-bootstrap';
+import {Button, Col, Form, Spinner} from 'react-bootstrap';
 import {Conference} from '../../../constants/Conference';
 import {Division} from '../../../constants/Division';
 import TeamUtil from '../../../utils/TeamUtil';
@@ -66,7 +66,15 @@ function TeamCreate(props: TeamCreateProps) {
                         <Button type="button" onClick={() => props.cancel()} variant="danger" className="w-50">Cancel</Button>
                     </Col>
                     <Col md={6} sm={12} className="text-lg-left text-sm-center">
-                        <Button type="submit" variant="dark" className="w-50">Submit</Button>
+                        <Button type="submit" variant="dark" className="w-50">
+                            {
+                                props.isLoading
+                                    ?
+                                    <Spinner animation="grow" size="sm"/>
+                                    :
+                                    'Submit'
+                            }
+                        </Button>
                     </Col>
                 </Form.Row>
             </Form>

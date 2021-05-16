@@ -19,53 +19,34 @@ function HomeContainer() {
     const dispatch = useAppDispatch();
     const selectedTeam = useAppSelector(state => state.team.selectedTeam);
     const [teams, setTeams] = useState(new Teams());
-    const [conference, setConference] = useState('');
-    const [division, setDivision] = useState('');
-    const [search, setSearch] = useState('');
     const [rightSectionView, setRightSectionView] = useState('view-team');
-
-    useEffect(() => {
-        getTeams();
-    }, [conference, division, search]);
+    const [isCreatingTeam, setIsCreatingTeam] = useState(false);
+    const [isUpdatingTeam, setIsUpdatingTeam] = useState(false);
+    const [isDeletingTeam, setIsDeletingTeam] = useState(false);
+    const [params, setParams] = useState({});
 
     function renderRightSectionViewComponent(rightSectionView: string) {
         let component = null;
 
         switch (rightSectionView) {
             case 'create-team':
-                component = <TeamCreate submit={submitAddedTeamInfo} cancel={cancelCreatingTeam}/>;
+                component = <TeamCreate submit={submitAddedTeamInfo} cancel={cancelCreatingTeam} isLoading={isCreatingTeam}/>;
                 break;
             case 'edit-team':
-                component = <TeamEdit team={selectedTeam} submit={submitEditedTeamInfo} cancel={cancelEditingTeam}/>;
+                component = <TeamEdit team={selectedTeam} submit={submitEditedTeamInfo} cancel={cancelEditingTeam} isLoading={isUpdatingTeam}/>;
                 break;
             default:
-                component = <TeamInfo team={selectedTeam} edit={editTeam} delete={deleteTeam}/>;
+                component = <TeamInfo team={selectedTeam} edit={editTeam} delete={deleteTeam} isLoading={isDeletingTeam}/>;
         }
 
         return component;
     }
 
-    function getTeams(page = 1): void {
-        const params = {
-            page,
-            conference,
-            division,
-            search
-        };
-
+    function searchTeams(params = {}): void {
+        setParams(params);
         TeamService.get(params).then((teams: Teams) => {
             setTeams(teams);
         });
-    }
-
-    function searchTeams(field: string, value: string): void {
-        if (field === 'conference') {
-            setConference(value);
-        } else if (field === 'division') {
-            setDivision(value);
-        } else if (field === 'search') {
-            setSearch(value);
-        }
     }
 
     function selectTeam(team: Team): void {
@@ -81,15 +62,21 @@ function HomeContainer() {
     }
 
     function submitAddedTeamInfo(payload: GenericObject): void {
+        setIsCreatingTeam(true);
         TeamService.create(payload)
             .then((team: Team) => {
                 NotificationUtil.success('Team successfully created.');
                 selectTeam(team);
                 cancelCreatingTeam();
-                getTeams(teams.meta.current_page);
+                setIsCreatingTeam(false);
+
+                const filter: GenericObject = params;
+                filter.page = teams.meta.current_page;
+                searchTeams(filter);
             })
             .catch((error) => {
                 NotificationUtil.error(error.response.data.error);
+                setIsCreatingTeam(false);
             });
     }
 
@@ -102,27 +89,39 @@ function HomeContainer() {
     }
 
     function submitEditedTeamInfo(payload: GenericObject): void {
+        setIsUpdatingTeam(true);
         TeamService.update(payload.id, payload)
             .then((team: Team) => {
                 NotificationUtil.success('Team info successfully updated.');
                 selectTeam(team);
                 cancelEditingTeam();
-                getTeams(teams.meta.current_page);
+                setIsUpdatingTeam(false);
+
+                const filter: GenericObject = params;
+                filter.page = teams.meta.current_page;
+                searchTeams(filter);
             })
             .catch((error) => {
                 NotificationUtil.error(error.response.data.error);
+                setIsUpdatingTeam(false);
             });
     }
 
     function deleteTeam(id: number): void {
+        setIsDeletingTeam(true);
         TeamService.delete(id)
             .then((response: Response) => {
                 NotificationUtil.success(response.success);
                 selectTeam(new Team());
-                getTeams(teams.meta.current_page);
+                setIsDeletingTeam(false);
+
+                const filter: GenericObject = params;
+                filter.page = teams.meta.current_page;
+                searchTeams(filter);
             })
             .catch((error) => {
                 NotificationUtil.error(error.response.data.error);
+                setIsDeletingTeam(false);
             });
     }
 
