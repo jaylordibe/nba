@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import './TeamInfo.css';
 import {TeamInfoProps} from './TeamInfoProps';
 import {Button, Card, OverlayTrigger, Popover, Spinner, Tooltip} from 'react-bootstrap';
@@ -42,7 +42,7 @@ function TeamInfo(props: TeamInfoProps) {
                         ?
                         <Card.Body>
                             <Card.Text className="text-right">
-                                <OverlayTrigger placement="top" overlay={getEditOverlay}>
+                                <OverlayTrigger placement="top" overlay={getEditOverlay()}>
                                     <Button variant="dark" onClick={() => props.edit(props.team)}>
                                         <FontAwesomeIcon icon="pencil-alt" size="lg"/>
                                     </Button>
