@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import './HomeContainer.css';
 import {Teams} from '../../models/Teams';
 import TeamService from '../../services/TeamService';
@@ -112,8 +112,9 @@ function HomeContainer() {
         TeamService.delete(id)
             .then((response: Response) => {
                 NotificationUtil.success(response.success);
-                selectTeam(new Team());
+                selectTeam(teams.data.teams[0]);
                 setIsDeletingTeam(false);
+                setRightSectionView('view-team');
 
                 const filter: GenericObject = params;
                 filter.page = teams.meta.current_page;

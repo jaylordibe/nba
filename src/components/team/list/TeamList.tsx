@@ -26,7 +26,7 @@ function TeamList(props: TeamListProps) {
             limit
         };
         props.search(params);
-    }, [conference, division, search, limit]);
+    }, [conference, division, search, page, limit]);
 
     function selectConference(conference: string): void {
         setConference(conference);
